@@ -201,7 +201,7 @@ class Host(BaseObj):
             self.libc = ctypes.CDLL('libc.so.6', use_errno=True)
         except:
             # MacOS
-            self.libc = ctypes.CDLL('libc.dylib', use_errno=True)
+            self.libc = ctypes.CDLL('/usr/lib/libc.dylib', use_errno=True)
 
     def __del__(self):
         """Destructor
