@@ -25,6 +25,7 @@ from nfstest.test_util import TestUtil
 import packet.nfs.nfs3_const as nfs3_const
 import packet.nfs.nfs4_const as nfs4_const
 import packet.nfs.nlm4_const as nlm4_const
+from sys import platform
 from fcntl import fcntl,F_RDLCK,F_WRLCK,F_UNLCK,F_SETLK,F_SETLKW,F_GETLK
 
 # Module constants
@@ -173,7 +174,12 @@ OPENMAP_R  = {'read':os.O_RDONLY, 'write':os.O_WRONLY, 'rdwr':os.O_RDWR}
 # Locking and helper functions
 def getlock(fd, lock_type, offset=0, length=0, stype=F_SETLK, timeout=30):
     """Get byte range lock on file given by file descriptor"""
-    lockdata = struct.pack('hhllhh', lock_type, 0, offset, length, 0, 0)
+    if platform == "linux":
+        lockdata = struct.pack('hhllhh', lock_type, 0, offset, length, 0, 0)
+    elif platform == "darwin":
+        lockdata = struct.pack('llihh', offset, length, os.getpid(), lock_type, 0)
+    else:
+        raise RuntimeError("Usupported platform - {}".format(platform))
     if stype == F_SETLK:
         out = fcntl(fd, stype, lockdata)
     else:
@@ -181,7 +187,10 @@ def getlock(fd, lock_type, offset=0, length=0, stype=F_SETLK, timeout=30):
         signal.alarm(timeout)
         out = fcntl(fd, stype, lockdata)
         signal.alarm(0)
-    return struct.unpack('hhllhh', out)
+    if platform == "linux":
+        return struct.unpack('hhllhh', out)
+    elif platform == "darwin":
+        return struct.unpack('llihh', out)
 
 def testlock(fd, lock_type, offset=0, length=0):
     """Test byte range lock on file given by file descriptor"""
