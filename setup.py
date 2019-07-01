@@ -31,7 +31,7 @@ from distutils.command.build import build
 
 class Build(build):
     def run(self):
-        create_manpage.run()
+        # create_manpage.run()
         build.run(self)
 
 setup(
@@ -52,7 +52,7 @@ setup(
     cmdclass = {'build': Build},
     data_files = [
         # Man pages for scripts
-        (os.path.join(c.NFSTEST_USRMAN, 'man1'), c.NFSTEST_MAN1),
-        (os.path.join(c.NFSTEST_USRMAN, 'man3'), c.NFSTEST_MAN3),
+        # (os.path.join(c.NFSTEST_USRMAN, 'man1'), c.NFSTEST_MAN1),
+        # (os.path.join(c.NFSTEST_USRMAN, 'man3'), c.NFSTEST_MAN3),
     ],
 )
