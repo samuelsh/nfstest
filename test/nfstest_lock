@@ -174,10 +174,10 @@ OPENMAP_R  = {'read':os.O_RDONLY, 'write':os.O_WRONLY, 'rdwr':os.O_RDWR}
 # Locking and helper functions
 def getlock(fd, lock_type, offset=0, length=0, stype=F_SETLK, timeout=30):
     """Get byte range lock on file given by file descriptor"""
-    if platform == "linux":
+    if platform == "linux" or platform == "linux2":
         lockdata = struct.pack('hhllhh', lock_type, 0, offset, length, 0, 0)
     elif platform == "darwin":
-        lockdata = struct.pack('llihh', offset, length, os.getpid(), lock_type, 0)
+        lockdata = struct.pack('llihh', offset, length, 0, lock_type, 0)
     else:
         raise RuntimeError("Usupported platform - {}".format(platform))
     if stype == F_SETLK:
@@ -187,7 +187,7 @@ def getlock(fd, lock_type, offset=0, length=0, stype=F_SETLK, timeout=30):
         signal.alarm(timeout)
         out = fcntl(fd, stype, lockdata)
         signal.alarm(0)
-    if platform == "linux":
+    if platform == "linux" or platform == "linux2":
         return struct.unpack('hhllhh', out)
     elif platform == "darwin":
         return struct.unpack('llihh', out)
